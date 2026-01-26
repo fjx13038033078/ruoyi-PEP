@@ -130,4 +130,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateCommentCount" parameterType="Long">
         update ky_material set comment_count = comment_count + 1 where id = #{id}
     </update>
+
+    <!-- 根据ID列表查询资料 -->
+    <select id="selectMaterialsByIds" resultMap="KyMaterialResult">
+        <include refid="selectKyMaterialVo"/>
+        where m.del_flag = '0' and m.status = '0' and m.id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        order by field(m.id,
+        <foreach item="id" collection="ids" separator=",">
+            #{id}
+        </foreach>
+        )
+    </select>
+
+    <!-- 查询热门资料（按加权分数排序：浏览*1 + 点赞*3 + 下载*5） -->
+    <select id="selectHotMaterials" resultMap="KyMaterialResult">
+        <include refid="selectKyMaterialVo"/>
+        where m.del_flag = '0' and m.status = '0'
+        order by (m.view_count * 1 + m.like_count * 3 + m.down_count * 5) desc, m.create_time desc
+        limit #{limit}
+    </select>
 </mapper>

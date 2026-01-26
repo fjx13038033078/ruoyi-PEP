@@ -1,7 +1,9 @@
 package com.ruoyi.preparation.mapper;
 
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.preparation.domain.KyBrowseLog;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 用户浏览记录Mapper接口
@@ -67,4 +69,35 @@ public interface KyBrowseLogMapper
      * @return 浏览记录
      */
     public KyBrowseLog selectByUserAndTarget(Long userId, Long targetId, String targetType);
+
+    /**
+     * 查询用户某类型的浏览记录（用于推荐）
+     * 
+     * @param userId 用户ID
+     * @param targetType 目标类型
+     * @return 浏览记录列表
+     */
+    public List<Map<String, Object>> selectUserBrowseByType(@Param("userId") Long userId, @Param("targetType") String targetType);
+
+    /**
+     * 查询所有有浏览记录的用户ID
+     * 
+     * @return 用户ID列表
+     */
+    public List<Long> selectDistinctUserIds();
+
+    /**
+     * 查询用户自己的浏览记录列表
+     * 
+     * @param kyBrowseLog 查询条件
+     * @return 浏览记录列表
+     */
+    public List<KyBrowseLog> selectMyBrowseLogList(KyBrowseLog kyBrowseLog);
+
+    /**
+     * 查询所有用户的资料浏览记录（用于推荐算法）
+     * 
+     * @return 浏览记录汇总列表
+     */
+    public List<Map<String, Object>> selectAllBrowseForRecommend();
 }

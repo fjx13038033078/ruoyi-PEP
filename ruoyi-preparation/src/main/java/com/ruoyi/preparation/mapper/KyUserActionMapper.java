@@ -1,6 +1,7 @@
 package com.ruoyi.preparation.mapper;
 
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.preparation.domain.KyUserAction;
 import org.apache.ibatis.annotations.Param;
 
@@ -93,4 +94,41 @@ public interface KyUserActionMapper
      */
     public int countByTargetAction(@Param("targetId") Long targetId, @Param("targetType") String targetType, 
                                    @Param("actionType") String actionType);
+
+    /**
+     * 查询用户某类型目标的某种行为记录（用于推荐）
+     * 
+     * @param userId 用户ID
+     * @param targetType 目标类型
+     * @param actionType 动作类型
+     * @return 行为记录列表
+     */
+    public List<Map<String, Object>> selectUserActionsByType(@Param("userId") Long userId, 
+                                                             @Param("targetType") String targetType, 
+                                                             @Param("actionType") String actionType);
+
+    /**
+     * 查询所有有互动记录的用户ID
+     * 
+     * @return 用户ID列表
+     */
+    public List<Long> selectDistinctUserIds();
+
+    /**
+     * 查询用户自己的互动记录列表
+     * 
+     * @param kyUserAction 查询条件
+     * @return 互动记录列表
+     */
+    public List<KyUserAction> selectMyActionList(KyUserAction kyUserAction);
+
+    /**
+     * 查询所有用户的互动记录（用于推荐算法）
+     * 
+     * @param targetType 目标类型
+     * @param actionType 动作类型
+     * @return 互动记录汇总列表
+     */
+    public List<Map<String, Object>> selectAllActionsForRecommend(@Param("targetType") String targetType, 
+                                                                   @Param("actionType") String actionType);
 }

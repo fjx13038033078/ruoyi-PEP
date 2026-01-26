@@ -2,6 +2,7 @@ package com.ruoyi.preparation.mapper;
 
 import java.util.List;
 import com.ruoyi.preparation.domain.KyMaterial;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 共享资料Mapper接口
@@ -91,4 +92,20 @@ public interface KyMaterialMapper
      * @return 结果
      */
     public int updateCommentCount(Long id);
+
+    /**
+     * 根据ID列表查询资料
+     * 
+     * @param ids 资料ID列表
+     * @return 资料列表
+     */
+    public List<KyMaterial> selectMaterialsByIds(@Param("ids") List<Long> ids);
+
+    /**
+     * 查询热门资料（按浏览、点赞、收藏加权排序）
+     * 
+     * @param limit 数量限制
+     * @return 热门资料列表
+     */
+    public List<KyMaterial> selectHotMaterials(@Param("limit") int limit);
 }

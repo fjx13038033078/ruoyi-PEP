@@ -95,4 +95,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where user_id = #{userId} and target_id = #{targetId} 
               and target_type = #{targetType} and action_type = #{actionType}
     </delete>
+
+    <!-- 查询用户某类型目标的某种行为记录（用于推荐） -->
+    <select id="selectUserActionsByType" resultType="java.util.Map">
+        select target_id as targetId, count(*) as actionCount
+        from ky_user_action 
+        where user_id = #{userId} and target_type = #{targetType} and action_type = #{actionType}
+        group by target_id
+    </select>
+
+    <!-- 查询所有有互动记录的用户ID -->
+    <select id="selectDistinctUserIds" resultType="Long">
+        select distinct user_id from ky_user_action
+    </select>
+
+    <!-- 查询用户自己的互动记录列表 -->
+    <select id="selectMyActionList" parameterType="com.ruoyi.preparation.domain.KyUserAction" resultMap="KyUserActionResult">
+        select a.id, a.user_id, a.target_id, a.target_type, a.action_type, a.create_time,
+               u.nick_name as user_name,
+               case 
+                   when a.target_type = '1' then (select title from ky_material where id = a.target_id)
+                   when a.target_type = '2' then (select title from ky_post where id = a.target_id)
+                   else null
+               end as target_title
+        from ky_user_action a
+        left join sys_user u on a.user_id = u.user_id
+        where a.user_id = #{userId}
+        <if test="targetType != null and targetType != ''"> and a.target_type = #{targetType}</if>
+        <if test="actionType != null and actionType != ''"> and a.action_type = #{actionType}</if>
+        order by a.create_time desc
+    </select>
+
+    <!-- 查询所有用户的互动记录（用于推荐算法） -->
+    <select id="selectAllActionsForRecommend" resultType="java.util.Map">
+        select user_id as userId, target_id as targetId, count(*) as actionCount
+        from ky_user_action 
+        where target_type = #{targetType} and action_type = #{actionType}
+        group by user_id, target_id
+    </select>
 </mapper>

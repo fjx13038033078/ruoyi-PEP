@@ -48,7 +48,38 @@
         </div>
       </div>
 
-      <el-row :gutter="20">
+      <!-- 猜你喜欢 -->
+      <el-card class="section-card recommend-card">
+        <div slot="header" class="section-header">
+          <span><i class="el-icon-magic-stick"></i> 猜你喜欢</span>
+          <el-button type="text" @click="refreshRecommend" :loading="recommendLoading">
+            <i class="el-icon-refresh"></i> 换一批
+          </el-button>
+        </div>
+        <div class="recommend-list" v-loading="recommendLoading">
+          <div
+            v-for="item in recommendMaterials"
+            :key="item.id"
+            class="recommend-item"
+            @click="goMaterialDetail(item.id)"
+          >
+            <div class="recommend-icon">
+              <i class="el-icon-document"></i>
+            </div>
+            <div class="recommend-info">
+              <div class="recommend-title">{{ item.title }}</div>
+              <div class="recommend-meta">
+                <el-tag size="mini">{{ item.categoryName || '未分类' }}</el-tag>
+                <span><i class="el-icon-view"></i> {{ item.viewCount || 0 }}</span>
+                <span><i class="el-icon-download"></i> {{ item.downCount || 0 }}</span>
+              </div>
+            </div>
+          </div>
+          <el-empty v-if="recommendMaterials.length === 0 && !recommendLoading" description="暂无推荐"></el-empty>
+        </div>
+      </el-card>
+
+      <el-row :gutter="20" style="margin-top: 20px;">
         <!-- 热门帖子 -->
         <el-col :span="16">
           <el-card class="section-card">
@@ -141,6 +172,7 @@
 import { listPost } from "@/api/preparation/post";
 import { listMaterial } from "@/api/preparation/material";
 import { listUniversity } from "@/api/preparation/university";
+import { getRecommendMaterials } from "@/api/preparation/recommend";
 
 export default {
   name: "PortalHome",
@@ -149,7 +181,9 @@ export default {
       searchKeyword: "",
       hotPosts: [],
       hotMaterials: [],
-      hotUniversities: []
+      hotUniversities: [],
+      recommendMaterials: [],
+      recommendLoading: false
     };
   },
   created() {
@@ -157,6 +191,8 @@ export default {
   },
   methods: {
     loadData() {
+      // 加载推荐资料（猜你喜欢）
+      this.loadRecommend();
       // 加载热门帖子
       listPost({ pageNum: 1, pageSize: 8 }).then(res => {
         this.hotPosts = res.rows || [];
@@ -169,6 +205,18 @@ export default {
       listUniversity({ pageNum: 1, pageSize: 5 }).then(res => {
         this.hotUniversities = res.rows || [];
       });
+    },
+    loadRecommend() {
+      this.recommendLoading = true;
+      getRecommendMaterials(10).then(res => {
+        this.recommendMaterials = res.data || [];
+        this.recommendLoading = false;
+      }).catch(() => {
+        this.recommendLoading = false;
+      });
+    },
+    refreshRecommend() {
+      this.loadRecommend();
     },
     handleSearch() {
       if (this.searchKeyword) {
@@ -292,6 +340,77 @@ export default {
         i {
           margin-right: 5px;
           color: #409EFF;
+        }
+      }
+    }
+  }
+
+  .recommend-card {
+    .recommend-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      min-height: 100px;
+
+      .recommend-item {
+        width: calc(20% - 12px);
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        border: 1px solid #eee;
+        cursor: pointer;
+
+        &:hover {
+          border-color: #409EFF;
+
+          .recommend-title {
+            color: #409EFF;
+          }
+        }
+
+        .recommend-icon {
+          width: 40px;
+          height: 40px;
+          background-color: #67C23A;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 10px;
+
+          i {
+            font-size: 20px;
+            color: #fff;
+          }
+        }
+
+        .recommend-info {
+          flex: 1;
+
+          .recommend-title {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .recommend-meta {
+            font-size: 12px;
+            color: #999;
+
+            .el-tag {
+              margin-right: 8px;
+            }
+
+            span {
+              margin-right: 10px;
+
+              i {
+                margin-right: 2px;
+              }
+            }
+          }
         }
       }
     }

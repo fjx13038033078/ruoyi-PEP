@@ -85,4 +85,41 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+
+    <!-- 查询用户某类型的浏览记录（用于推荐） -->
+    <select id="selectUserBrowseByType" resultType="java.util.Map">
+        select target_id as targetId, count(*) as browseCount
+        from ky_browse_log 
+        where user_id = #{userId} and target_type = #{targetType}
+        group by target_id
+    </select>
+
+    <!-- 查询所有有浏览记录的用户ID -->
+    <select id="selectDistinctUserIds" resultType="Long">
+        select distinct user_id from ky_browse_log
+    </select>
+
+    <!-- 查询用户自己的浏览记录列表 -->
+    <select id="selectMyBrowseLogList" parameterType="com.ruoyi.preparation.domain.KyBrowseLog" resultMap="KyBrowseLogResult">
+        select b.id, b.user_id, b.target_id, b.target_type, b.browse_time,
+               u.nick_name as user_name,
+               case 
+                   when b.target_type = '1' then (select title from ky_material where id = b.target_id)
+                   when b.target_type = '2' then (select title from ky_post where id = b.target_id)
+                   else null
+               end as target_title
+        from ky_browse_log b
+        left join sys_user u on b.user_id = u.user_id
+        where b.user_id = #{userId}
+        <if test="targetType != null and targetType != ''"> and b.target_type = #{targetType}</if>
+        order by b.browse_time desc
+    </select>
+
+    <!-- 查询所有用户的资料浏览记录（用于推荐算法） -->
+    <select id="selectAllBrowseForRecommend" resultType="java.util.Map">
+        select user_id as userId, target_id as targetId, count(*) as browseCount
+        from ky_browse_log 
+        where target_type = '1'
+        group by user_id, target_id
+    </select>
 </mapper>
