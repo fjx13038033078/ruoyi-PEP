@@ -5,6 +5,7 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
+import PortalLayout from '@/layout/portal'
 
 /**
  * Note: 路由配置项
@@ -85,6 +86,69 @@ export const constantRoutes = [
         component: () => import('@/views/system/user/profile/index'),
         name: 'Profile',
         meta: { title: '个人中心', icon: 'user' }
+      }
+    ]
+  },
+  // 前台门户路由
+  {
+    path: '/portal',
+    component: PortalLayout,
+    hidden: true,
+    redirect: '/portal/home',
+    children: [
+      {
+        path: 'home',
+        component: () => import('@/views/portal/home/index'),
+        name: 'PortalHome',
+        meta: { title: '首页' }
+      },
+      {
+        path: 'university',
+        component: () => import('@/views/portal/university/index'),
+        name: 'PortalUniversity',
+        meta: { title: '院校信息' }
+      },
+      {
+        path: 'university/:id',
+        component: () => import('@/views/portal/university/detail'),
+        name: 'PortalUniversityDetail',
+        meta: { title: '院校详情' }
+      },
+      {
+        path: 'material',
+        component: () => import('@/views/portal/material/index'),
+        name: 'PortalMaterial',
+        meta: { title: '资料中心' }
+      },
+      {
+        path: 'material/:id',
+        component: () => import('@/views/portal/material/detail'),
+        name: 'PortalMaterialDetail',
+        meta: { title: '资料详情' }
+      },
+      {
+        path: 'forum',
+        component: () => import('@/views/portal/forum/index'),
+        name: 'PortalForum',
+        meta: { title: '考研论坛' }
+      },
+      {
+        path: 'post/:id',
+        component: () => import('@/views/portal/forum/detail'),
+        name: 'PortalPostDetail',
+        meta: { title: '帖子详情' }
+      },
+      {
+        path: 'profile',
+        component: () => import('@/views/portal/profile/index'),
+        name: 'PortalProfile',
+        meta: { title: '个人中心' }
+      },
+      {
+        path: 'profile/:tab',
+        component: () => import('@/views/portal/profile/index'),
+        name: 'PortalProfileTab',
+        meta: { title: '个人中心' }
       }
     ]
   }

@@ -16,7 +16,17 @@ router.beforeEach((to, from, next) => {
     to.meta.title && store.dispatch('settings/setTitle', to.meta.title)
     /* has token*/
     if (to.path === '/login') {
-      next({ path: '/' })
+      // 已登录用户访问登录页，根据角色跳转
+      const roles = store.getters.roles
+      if (roles && roles.length > 0) {
+        if (roles.includes('admin')) {
+          next({ path: '/' })
+        } else {
+          next({ path: '/portal/home' })
+        }
+      } else {
+        next({ path: '/' })
+      }
       NProgress.done()
     } else if (whiteList.indexOf(to.path) !== -1) {
       next()
@@ -24,7 +34,7 @@ router.beforeEach((to, from, next) => {
       if (store.getters.roles.length === 0) {
         isRelogin.show = true
         // 判断当前用户是否已拉取完user_info信息
-        store.dispatch('GetInfo').then(() => {
+        store.dispatch('GetInfo').then((res) => {
           isRelogin.show = false
           store.dispatch('GenerateRoutes').then(accessRoutes => {
             // 根据roles权限生成可访问的路由表
