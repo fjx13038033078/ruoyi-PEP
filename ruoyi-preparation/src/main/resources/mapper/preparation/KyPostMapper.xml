@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.preparation.mapper.KyPostMapper">
+    
+    <resultMap type="com.ruoyi.preparation.domain.KyPost" id="KyPostResult">
+        <id     property="id"           column="id"           />
+        <result property="userId"       column="user_id"      />
+        <result property="title"        column="title"        />
+        <result property="content"      column="content"      />
+        <result property="viewNum"      column="view_num"     />
+        <result property="likeNum"      column="like_num"     />
+        <result property="collectNum"   column="collect_num"  />
+        <result property="isTop"        column="is_top"       />
+        <result property="delFlag"      column="del_flag"     />
+        <result property="createBy"     column="create_by"    />
+        <result property="createTime"   column="create_time"  />
+        <result property="updateBy"     column="update_by"    />
+        <result property="updateTime"   column="update_time"  />
+        <result property="userName"     column="user_name"    />
+        <result property="userAvatar"   column="avatar"       />
+    </resultMap>
+
+    <sql id="selectKyPostVo">
+        select p.id, p.user_id, p.title, p.content, p.view_num, p.like_num, p.collect_num, 
+               p.is_top, p.del_flag, p.create_by, p.create_time, p.update_by, p.update_time,
+               u.nick_name as user_name, u.avatar
+        from ky_post p
+        left join sys_user u on p.user_id = u.user_id
+    </sql>
+
+    <select id="selectKyPostList" parameterType="com.ruoyi.preparation.domain.KyPost" resultMap="KyPostResult">
+        <include refid="selectKyPostVo"/>
+        <where>
+            p.del_flag = '0'
+            <if test="userId != null"> and p.user_id = #{userId}</if>
+            <if test="title != null  and title != ''"> and p.title like concat('%', #{title}, '%')</if>
+            <if test="isTop != null  and isTop != ''"> and p.is_top = #{isTop}</if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                and date_format(p.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                and date_format(p.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+        order by p.is_top desc, p.create_time desc
+    </select>
+    
+    <select id="selectKyPostById" parameterType="Long" resultMap="KyPostResult">
+        <include refid="selectKyPostVo"/>
+        where p.id = #{id} and p.del_flag = '0'
+    </select>
+        
+    <insert id="insertKyPost" parameterType="com.ruoyi.preparation.domain.KyPost" useGeneratedKeys="true" keyProperty="id">
+        insert into ky_post
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="title != null">title,</if>
+            <if test="content != null">content,</if>
+            <if test="viewNum != null">view_num,</if>
+            <if test="likeNum != null">like_num,</if>
+            <if test="collectNum != null">collect_num,</if>
+            <if test="isTop != null">is_top,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="title != null">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="viewNum != null">#{viewNum},</if>
+            <if test="likeNum != null">#{likeNum},</if>
+            <if test="collectNum != null">#{collectNum},</if>
+            <if test="isTop != null">#{isTop},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateKyPost" parameterType="com.ruoyi.preparation.domain.KyPost">
+        update ky_post
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="viewNum != null">view_num = #{viewNum},</if>
+            <if test="likeNum != null">like_num = #{likeNum},</if>
+            <if test="collectNum != null">collect_num = #{collectNum},</if>
+            <if test="isTop != null">is_top = #{isTop},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="deleteKyPostById" parameterType="Long">
+        update ky_post set del_flag = '1' where id = #{id}
+    </update>
+
+    <update id="deleteKyPostByIds" parameterType="String">
+        update ky_post set del_flag = '1' where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateViewNum" parameterType="Long">
+        update ky_post set view_num = view_num + 1 where id = #{id}
+    </update>
+
+    <update id="updateLikeNum" parameterType="Long">
+        update ky_post set like_num = like_num + 1 where id = #{id}
+    </update>
+
+    <update id="updateCollectNum" parameterType="Long">
+        update ky_post set collect_num = collect_num + 1 where id = #{id}
+    </update>
+</mapper>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.preparation.mapper.KyUniversityMapper">
+    
+    <resultMap type="com.ruoyi.preparation.domain.KyUniversity" id="KyUniversityResult">
+        <id     property="id"           column="id"           />
+        <result property="name"         column="name"         />
+        <result property="code"         column="code"         />
+        <result property="level"        column="level"        />
+        <result property="region"       column="region"       />
+        <result property="website"      column="website"      />
+        <result property="intro"        column="intro"        />
+        <result property="logoUrl"      column="logo_url"     />
+        <result property="delFlag"      column="del_flag"     />
+        <result property="createBy"     column="create_by"    />
+        <result property="createTime"   column="create_time"  />
+        <result property="updateBy"     column="update_by"    />
+        <result property="updateTime"   column="update_time"  />
+        <result property="remark"       column="remark"       />
+    </resultMap>
+
+    <sql id="selectKyUniversityVo">
+        select id, name, code, level, region, website, intro, logo_url, del_flag, create_by, create_time, update_by, update_time, remark 
+        from ky_university
+    </sql>
+
+    <select id="selectKyUniversityList" parameterType="com.ruoyi.preparation.domain.KyUniversity" resultMap="KyUniversityResult">
+        <include refid="selectKyUniversityVo"/>
+        <where>
+            del_flag = '0'
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="level != null  and level != ''"> and level = #{level}</if>
+            <if test="region != null  and region != ''"> and region like concat('%', #{region}, '%')</if>
+        </where>
+        order by create_time desc
+    </select>
+    
+    <select id="selectKyUniversityById" parameterType="Long" resultMap="KyUniversityResult">
+        <include refid="selectKyUniversityVo"/>
+        where id = #{id} and del_flag = '0'
+    </select>
+        
+    <insert id="insertKyUniversity" parameterType="com.ruoyi.preparation.domain.KyUniversity" useGeneratedKeys="true" keyProperty="id">
+        insert into ky_university
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+            <if test="code != null">code,</if>
+            <if test="level != null">level,</if>
+            <if test="region != null">region,</if>
+            <if test="website != null">website,</if>
+            <if test="intro != null">intro,</if>
+            <if test="logoUrl != null">logo_url,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+            <if test="code != null">#{code},</if>
+            <if test="level != null">#{level},</if>
+            <if test="region != null">#{region},</if>
+            <if test="website != null">#{website},</if>
+            <if test="intro != null">#{intro},</if>
+            <if test="logoUrl != null">#{logoUrl},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateKyUniversity" parameterType="com.ruoyi.preparation.domain.KyUniversity">
+        update ky_university
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="level != null">level = #{level},</if>
+            <if test="region != null">region = #{region},</if>
+            <if test="website != null">website = #{website},</if>
+            <if test="intro != null">intro = #{intro},</if>
+            <if test="logoUrl != null">logo_url = #{logoUrl},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="deleteKyUniversityById" parameterType="Long">
+        update ky_university set del_flag = '1' where id = #{id}
+    </update>
+
+    <update id="deleteKyUniversityByIds" parameterType="String">
+        update ky_university set del_flag = '1' where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

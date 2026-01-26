@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.preparation.mapper.KyUserActionMapper">
+    
+    <resultMap type="com.ruoyi.preparation.domain.KyUserAction" id="KyUserActionResult">
+        <id     property="id"           column="id"           />
+        <result property="userId"       column="user_id"      />
+        <result property="targetId"     column="target_id"    />
+        <result property="targetType"   column="target_type"  />
+        <result property="actionType"   column="action_type"  />
+        <result property="createTime"   column="create_time"  />
+        <result property="userName"     column="user_name"    />
+        <result property="targetTitle"  column="target_title" />
+    </resultMap>
+
+    <sql id="selectKyUserActionVo">
+        select a.id, a.user_id, a.target_id, a.target_type, a.action_type, a.create_time,
+               u.nick_name as user_name
+        from ky_user_action a
+        left join sys_user u on a.user_id = u.user_id
+    </sql>
+
+    <select id="selectKyUserActionList" parameterType="com.ruoyi.preparation.domain.KyUserAction" resultMap="KyUserActionResult">
+        <include refid="selectKyUserActionVo"/>
+        <where>
+            <if test="userId != null"> and a.user_id = #{userId}</if>
+            <if test="targetId != null"> and a.target_id = #{targetId}</if>
+            <if test="targetType != null  and targetType != ''"> and a.target_type = #{targetType}</if>
+            <if test="actionType != null  and actionType != ''"> and a.action_type = #{actionType}</if>
+        </where>
+        order by a.create_time desc
+    </select>
+    
+    <select id="selectKyUserActionById" parameterType="Long" resultMap="KyUserActionResult">
+        <include refid="selectKyUserActionVo"/>
+        where a.id = #{id}
+    </select>
+
+    <select id="selectByUserAction" resultMap="KyUserActionResult">
+        <include refid="selectKyUserActionVo"/>
+        where a.user_id = #{userId} and a.target_id = #{targetId} 
+              and a.target_type = #{targetType} and a.action_type = #{actionType}
+        limit 1
+    </select>
+
+    <select id="countByTargetAction" resultType="int">
+        select count(1) from ky_user_action 
+        where target_id = #{targetId} and target_type = #{targetType} and action_type = #{actionType}
+    </select>
+        
+    <insert id="insertKyUserAction" parameterType="com.ruoyi.preparation.domain.KyUserAction" useGeneratedKeys="true" keyProperty="id">
+        insert into ky_user_action
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="targetId != null">target_id,</if>
+            <if test="targetType != null">target_type,</if>
+            <if test="actionType != null">action_type,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="targetId != null">#{targetId},</if>
+            <if test="targetType != null">#{targetType},</if>
+            <if test="actionType != null">#{actionType},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateKyUserAction" parameterType="com.ruoyi.preparation.domain.KyUserAction">
+        update ky_user_action
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="targetId != null">target_id = #{targetId},</if>
+            <if test="targetType != null">target_type = #{targetType},</if>
+            <if test="actionType != null">action_type = #{actionType},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKyUserActionById" parameterType="Long">
+        delete from ky_user_action where id = #{id}
+    </delete>
+
+    <delete id="deleteKyUserActionByIds" parameterType="String">
+        delete from ky_user_action where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByUserAction">
+        delete from ky_user_action 
+        where user_id = #{userId} and target_id = #{targetId} 
+              and target_type = #{targetType} and action_type = #{actionType}
+    </delete>
+</mapper>

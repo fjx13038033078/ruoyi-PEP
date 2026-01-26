@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.preparation.mapper.KyBrowseLogMapper">
+    
+    <resultMap type="com.ruoyi.preparation.domain.KyBrowseLog" id="KyBrowseLogResult">
+        <id     property="id"           column="id"           />
+        <result property="userId"       column="user_id"      />
+        <result property="targetId"     column="target_id"    />
+        <result property="targetType"   column="target_type"  />
+        <result property="browseTime"   column="browse_time"  />
+        <result property="userName"     column="user_name"    />
+        <result property="targetTitle"  column="target_title" />
+    </resultMap>
+
+    <sql id="selectKyBrowseLogVo">
+        select b.id, b.user_id, b.target_id, b.target_type, b.browse_time,
+               u.nick_name as user_name
+        from ky_browse_log b
+        left join sys_user u on b.user_id = u.user_id
+    </sql>
+
+    <select id="selectKyBrowseLogList" parameterType="com.ruoyi.preparation.domain.KyBrowseLog" resultMap="KyBrowseLogResult">
+        <include refid="selectKyBrowseLogVo"/>
+        <where>
+            <if test="userId != null"> and b.user_id = #{userId}</if>
+            <if test="targetId != null"> and b.target_id = #{targetId}</if>
+            <if test="targetType != null  and targetType != ''"> and b.target_type = #{targetType}</if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                and date_format(b.browse_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                and date_format(b.browse_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+        order by b.browse_time desc
+    </select>
+    
+    <select id="selectKyBrowseLogById" parameterType="Long" resultMap="KyBrowseLogResult">
+        <include refid="selectKyBrowseLogVo"/>
+        where b.id = #{id}
+    </select>
+
+    <select id="selectByUserAndTarget" resultMap="KyBrowseLogResult">
+        <include refid="selectKyBrowseLogVo"/>
+        where b.user_id = #{userId} and b.target_id = #{targetId} and b.target_type = #{targetType}
+        limit 1
+    </select>
+        
+    <insert id="insertKyBrowseLog" parameterType="com.ruoyi.preparation.domain.KyBrowseLog" useGeneratedKeys="true" keyProperty="id">
+        insert into ky_browse_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="targetId != null">target_id,</if>
+            <if test="targetType != null">target_type,</if>
+            browse_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="targetId != null">#{targetId},</if>
+            <if test="targetType != null">#{targetType},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateKyBrowseLog" parameterType="com.ruoyi.preparation.domain.KyBrowseLog">
+        update ky_browse_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="targetId != null">target_id = #{targetId},</if>
+            <if test="targetType != null">target_type = #{targetType},</if>
+            browse_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKyBrowseLogById" parameterType="Long">
+        delete from ky_browse_log where id = #{id}
+    </delete>
+
+    <delete id="deleteKyBrowseLogByIds" parameterType="String">
+        delete from ky_browse_log where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.preparation.mapper.KyMaterialMapper">
+    
+    <resultMap type="com.ruoyi.preparation.domain.KyMaterial" id="KyMaterialResult">
+        <id     property="id"            column="id"            />
+        <result property="categoryId"    column="category_id"   />
+        <result property="userId"        column="user_id"       />
+        <result property="title"         column="title"         />
+        <result property="fileUrl"       column="file_url"      />
+        <result property="downCount"     column="down_count"    />
+        <result property="viewCount"     column="view_count"    />
+        <result property="likeCount"     column="like_count"    />
+        <result property="commentCount"  column="comment_count" />
+        <result property="status"        column="status"        />
+        <result property="delFlag"       column="del_flag"      />
+        <result property="createTime"    column="create_time"   />
+        <result property="remark"        column="remark"        />
+        <result property="categoryName"  column="category_name" />
+        <result property="userName"      column="user_name"     />
+    </resultMap>
+
+    <sql id="selectKyMaterialVo">
+        select m.id, m.category_id, m.user_id, m.title, m.file_url, m.down_count, m.view_count, 
+               m.like_count, m.comment_count, m.status, m.del_flag, m.create_time, m.remark,
+               c.name as category_name, u.nick_name as user_name
+        from ky_material m
+        left join ky_material_category c on m.category_id = c.id
+        left join sys_user u on m.user_id = u.user_id
+    </sql>
+
+    <select id="selectKyMaterialList" parameterType="com.ruoyi.preparation.domain.KyMaterial" resultMap="KyMaterialResult">
+        <include refid="selectKyMaterialVo"/>
+        <where>
+            m.del_flag = '0'
+            <if test="categoryId != null"> and m.category_id = #{categoryId}</if>
+            <if test="userId != null"> and m.user_id = #{userId}</if>
+            <if test="title != null  and title != ''"> and m.title like concat('%', #{title}, '%')</if>
+            <if test="status != null  and status != ''"> and m.status = #{status}</if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                and date_format(m.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                and date_format(m.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+        order by m.create_time desc
+    </select>
+    
+    <select id="selectKyMaterialById" parameterType="Long" resultMap="KyMaterialResult">
+        <include refid="selectKyMaterialVo"/>
+        where m.id = #{id} and m.del_flag = '0'
+    </select>
+        
+    <insert id="insertKyMaterial" parameterType="com.ruoyi.preparation.domain.KyMaterial" useGeneratedKeys="true" keyProperty="id">
+        insert into ky_material
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">category_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="title != null">title,</if>
+            <if test="fileUrl != null">file_url,</if>
+            <if test="downCount != null">down_count,</if>
+            <if test="viewCount != null">view_count,</if>
+            <if test="likeCount != null">like_count,</if>
+            <if test="commentCount != null">comment_count,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="title != null">#{title},</if>
+            <if test="fileUrl != null">#{fileUrl},</if>
+            <if test="downCount != null">#{downCount},</if>
+            <if test="viewCount != null">#{viewCount},</if>
+            <if test="likeCount != null">#{likeCount},</if>
+            <if test="commentCount != null">#{commentCount},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateKyMaterial" parameterType="com.ruoyi.preparation.domain.KyMaterial">
+        update ky_material
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="fileUrl != null">file_url = #{fileUrl},</if>
+            <if test="downCount != null">down_count = #{downCount},</if>
+            <if test="viewCount != null">view_count = #{viewCount},</if>
+            <if test="likeCount != null">like_count = #{likeCount},</if>
+            <if test="commentCount != null">comment_count = #{commentCount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="deleteKyMaterialById" parameterType="Long">
+        update ky_material set del_flag = '1' where id = #{id}
+    </update>
+
+    <update id="deleteKyMaterialByIds" parameterType="String">
+        update ky_material set del_flag = '1' where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateViewCount" parameterType="Long">
+        update ky_material set view_count = view_count + 1 where id = #{id}
+    </update>
+
+    <update id="updateDownCount" parameterType="Long">
+        update ky_material set down_count = down_count + 1 where id = #{id}
+    </update>
+
+    <update id="updateLikeCount" parameterType="Long">
+        update ky_material set like_count = like_count + 1 where id = #{id}
+    </update>
+
+    <update id="updateCommentCount" parameterType="Long">
+        update ky_material set comment_count = comment_count + 1 where id = #{id}
+    </update>
+</mapper>
