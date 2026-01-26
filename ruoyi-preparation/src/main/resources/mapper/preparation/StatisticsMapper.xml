@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.preparation.mapper.StatisticsMapper">
+
+    <!-- 获取资料分类统计 -->
+    <select id="selectMaterialCategoryStats" resultType="java.util.Map">
+        select c.name as name, count(m.id) as value
+        from ky_material_category c
+        left join ky_material m on c.id = m.category_id and m.del_flag = '0'
+        where c.del_flag = '0' and c.status = '0'
+        group by c.id, c.name
+        order by value desc
+        limit 6
+    </select>
+
+    <!-- 获取近7天帖子发布趋势 -->
+    <select id="selectPostTrend" resultType="java.util.Map">
+        select date_format(create_time, '%m-%d') as date, count(*) as count
+        from ky_post
+        where del_flag = '0' 
+          and create_time >= date_sub(curdate(), interval 6 day)
+        group by date_format(create_time, '%m-%d'), date_format(create_time, '%Y-%m-%d')
+        order by date_format(create_time, '%Y-%m-%d')
+    </select>
+
+    <!-- 获取院校层次分布 -->
+    <select id="selectUniversityLevelStats" resultType="java.util.Map">
+        select level, count(*) as count
+        from ky_university
+        where del_flag = '0'
+        group by level
+        order by count desc
+    </select>
+
+    <!-- 获取浏览总数 -->
+    <select id="selectBrowseCount" resultType="int">
+        select count(*) from ky_browse_log
+    </select>
+
+    <!-- 获取用户行为数量 -->
+    <select id="selectActionCount" resultType="int">
+        select count(*) from ky_user_action where action_type = #{actionType}
+    </select>
+
+    <!-- 获取下载总数 -->
+    <select id="selectDownloadCount" resultType="int">
+        select ifnull(sum(down_count), 0) from ky_material where del_flag = '0'
+    </select>
+
+    <!-- 获取院校总数 -->
+    <select id="selectUniversityCount" resultType="int">
+        select count(*) from ky_university where del_flag = '0'
+    </select>
+
+    <!-- 获取资料总数 -->
+    <select id="selectMaterialCount" resultType="int">
+        select count(*) from ky_material where del_flag = '0'
+    </select>
+
+    <!-- 获取帖子总数 -->
+    <select id="selectPostCount" resultType="int">
+        select count(*) from ky_post where del_flag = '0'
+    </select>
+
+    <!-- 获取用户总数 -->
+    <select id="selectUserCount" resultType="int">
+        select count(*) from sys_user where del_flag = '0'
+    </select>
+
+</mapper>
