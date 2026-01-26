@@ -148,7 +148,7 @@
         </el-descriptions-item>
         <el-descriptions-item label="创建时间">{{ parseTime(viewForm.createTime) }}</el-descriptions-item>
         <el-descriptions-item label="资料文件" :span="2">
-          <el-link v-if="viewForm.fileUrl" type="primary" :href="viewForm.fileUrl" target="_blank">点击下载</el-link>
+          <el-button v-if="viewForm.fileUrl" type="text" @click="handleDownload(viewForm)">点击下载</el-button>
           <span v-else>暂无文件</span>
         </el-descriptions-item>
         <el-descriptions-item label="资料描述" :span="2">{{ viewForm.remark || '暂无描述' }}</el-descriptions-item>
@@ -334,6 +334,24 @@ export default {
       this.download('preparation/material/export', {
         ...this.queryParams
       }, `material_${new Date().getTime()}.xlsx`);
+    },
+    /** 下载资料文件 */
+    handleDownload(row) {
+      if (row.fileUrl) {
+        let fileUrl = row.fileUrl;
+        // 如果是完整URL，提取路径部分
+        if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+          try {
+            const url = new URL(fileUrl);
+            fileUrl = url.pathname;
+          } catch (e) {
+            console.error('URL解析失败', e);
+          }
+        }
+        this.$download.resource(fileUrl);
+      } else {
+        this.$modal.msgWarning("暂无可下载文件");
+      }
     }
   }
 };

@@ -169,9 +169,23 @@ export default {
     },
     handleDownload() {
       if (this.material.fileUrl) {
+        // 记录下载次数
         downloadMaterial(this.material.id).then(() => {
-          window.open(this.material.fileUrl, '_blank');
+          this.material.downCount = (this.material.downCount || 0) + 1;
         });
+        // 处理文件路径，确保是相对路径格式
+        let fileUrl = this.material.fileUrl;
+        // 如果是完整URL，提取路径部分
+        if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+          try {
+            const url = new URL(fileUrl);
+            fileUrl = url.pathname;
+          } catch (e) {
+            console.error('URL解析失败', e);
+          }
+        }
+        // 使用若依封装的下载方法
+        this.$download.resource(fileUrl);
       } else {
         this.$modal.msgWarning("暂无可下载文件");
       }
