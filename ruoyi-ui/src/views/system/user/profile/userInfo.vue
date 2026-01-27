@@ -15,6 +15,12 @@
         <el-radio label="1">女</el-radio>
       </el-radio-group>
     </el-form-item>
+    <el-form-item label="毕业院校" prop="university">
+      <el-input v-model="form.university" maxlength="100" placeholder="请输入毕业院校" />
+    </el-form-item>
+    <el-form-item label="专业" prop="major">
+      <el-input v-model="form.major" maxlength="100" placeholder="请输入专业" />
+    </el-form-item>
     <el-form-item>
       <el-button type="primary" size="mini" @click="submit">保存</el-button>
       <el-button type="danger" size="mini" @click="close">关闭</el-button>
@@ -62,7 +68,14 @@ export default {
     user: {
       handler(user) {
         if (user) {
-          this.form = { nickName: user.nickName, phonenumber: user.phonenumber, email: user.email, sex: user.sex };
+          this.form = { 
+            nickName: user.nickName, 
+            phonenumber: user.phonenumber, 
+            email: user.email, 
+            sex: user.sex,
+            university: user.university,
+            major: user.major
+          };
         }
       },
       immediate: true

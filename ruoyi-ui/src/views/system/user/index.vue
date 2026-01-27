@@ -529,7 +529,6 @@ export default {
         sex: undefined,
         status: "0",
         remark: undefined,
-        balance:undefined,
         postIds: [],
         roleIds: []
       };

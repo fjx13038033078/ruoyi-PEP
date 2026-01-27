@@ -1,6 +1,5 @@
 package com.ruoyi.common.core.domain.entity;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javax.validation.constraints.*;
@@ -127,9 +126,16 @@ public class SysUser extends BaseEntity {
     private Long roleId;
 
     /**
-     * 余额
+     * 毕业院校
      */
-    private BigDecimal balance;
+    @Excel(name = "毕业院校")
+    private String university;
+
+    /**
+     * 专业
+     */
+    @Excel(name = "专业")
+    private String major;
 
     public SysUser() {
 
@@ -157,14 +163,6 @@ public class SysUser extends BaseEntity {
 
     public Long getDeptId() {
         return deptId;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
     }
 
     public void setDeptId(Long deptId) {
@@ -307,6 +305,22 @@ public class SysUser extends BaseEntity {
         this.roleId = roleId;
     }
 
+    public String getUniversity() {
+        return university;
+    }
+
+    public void setUniversity(String university) {
+        this.university = university;
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
@@ -329,7 +343,8 @@ public class SysUser extends BaseEntity {
                 .append("updateTime", getUpdateTime())
                 .append("remark", getRemark())
                 .append("dept", getDept())
-                .append("balance", getBalance())
+                .append("university", getUniversity())
+                .append("major", getMajor())
                 .toString();
     }
 }

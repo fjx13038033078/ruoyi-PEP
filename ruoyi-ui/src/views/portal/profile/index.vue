@@ -12,6 +12,10 @@
             </div>
             <h3 class="user-name">{{ user.nickName }}</h3>
             <p class="user-account">{{ user.userName }}</p>
+            <div class="user-info-detail">
+              <p v-if="user.university"><i class="el-icon-school"></i> {{ user.university }}</p>
+              <p v-if="user.major"><i class="el-icon-reading"></i> {{ user.major }}</p>
+            </div>
             <div class="user-stats">
               <div class="stat-item">
                 <span class="stat-value">{{ myPostCount }}</span>
@@ -22,6 +26,9 @@
                 <span class="stat-label">收藏</span>
               </div>
             </div>
+            <el-button type="primary" size="small" @click="openEditDialog" style="margin-top: 15px; width: 100%;">
+              <i class="el-icon-edit"></i> 编辑资料
+            </el-button>
           </el-card>
 
           <el-card class="menu-card" style="margin-top: 20px;">
@@ -139,11 +146,37 @@
         </el-col>
       </el-row>
     </div>
+
+    <!-- 编辑资料对话框 -->
+    <el-dialog title="编辑个人资料" :visible.sync="editDialogVisible" width="500px" append-to-body>
+      <el-form ref="editForm" :model="editForm" :rules="editRules" label-width="80px">
+        <el-form-item label="昵称" prop="nickName">
+          <el-input v-model="editForm.nickName" maxlength="30" placeholder="请输入昵称" />
+        </el-form-item>
+        <el-form-item label="手机号码" prop="phonenumber">
+          <el-input v-model="editForm.phonenumber" maxlength="11" placeholder="请输入手机号码" />
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editForm.email" maxlength="50" placeholder="请输入邮箱" />
+        </el-form-item>
+        <el-form-item label="毕业院校" prop="university">
+          <el-input v-model="editForm.university" maxlength="100" placeholder="请输入毕业院校" />
+        </el-form-item>
+        <el-form-item label="专业" prop="major">
+          <el-input v-model="editForm.major" maxlength="100" placeholder="请输入专业" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitEdit">保 存</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { listPost, delPost } from "@/api/preparation/post";
+import { getUserProfile, updateUserProfile } from "@/api/system/user";
 import request from '@/utils/request'
 
 export default {
@@ -163,11 +196,22 @@ export default {
       browseTotal: 0,
       postQuery: { pageNum: 1, pageSize: 10 },
       collectQuery: { pageNum: 1, pageSize: 10 },
-      browseQuery: { pageNum: 1, pageSize: 10 }
+      browseQuery: { pageNum: 1, pageSize: 10 },
+      editDialogVisible: false,
+      editForm: {},
+      editRules: {
+        nickName: [{ required: true, message: "昵称不能为空", trigger: "blur" }],
+        email: [
+          { type: "email", message: "请输入正确的邮箱地址", trigger: ["blur", "change"] }
+        ],
+        phonenumber: [
+          { pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur" }
+        ]
+      }
     };
   },
   created() {
-    this.user = this.$store.getters.userInfo || {};
+    this.getUserInfo();
     // 根据路由参数决定显示哪个tab
     const tab = this.$route.params.tab;
     if (tab) {
@@ -287,6 +331,32 @@ export default {
           this.getStatistics();
         });
       }).catch(() => {});
+    },
+    getUserInfo() {
+      getUserProfile().then(res => {
+        this.user = res.data || {};
+      });
+    },
+    openEditDialog() {
+      this.editForm = {
+        nickName: this.user.nickName,
+        phonenumber: this.user.phonenumber,
+        email: this.user.email,
+        university: this.user.university,
+        major: this.user.major
+      };
+      this.editDialogVisible = true;
+    },
+    submitEdit() {
+      this.$refs["editForm"].validate(valid => {
+        if (valid) {
+          updateUserProfile(this.editForm).then(res => {
+            this.$modal.msgSuccess("修改成功");
+            this.editDialogVisible = false;
+            this.getUserInfo();
+          });
+        }
+      });
     }
   }
 };
@@ -320,7 +390,24 @@ export default {
     .user-account {
       font-size: 13px;
       color: #999;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+    }
+
+    .user-info-detail {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 15px;
+      text-align: left;
+      padding: 0 15px;
+
+      p {
+        margin: 5px 0;
+        
+        i {
+          margin-right: 5px;
+          color: #409EFF;
+        }
+      }
     }
 
     .user-stats {
