@@ -1,10 +1,19 @@
 package com.ruoyi.preparation.recommend;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 /**
  * 用户相似度
  *
  * @author ruoyi
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserSimilarity implements Comparable<UserSimilarity>
 {
     /** 用户ID */
@@ -12,36 +21,6 @@ public class UserSimilarity implements Comparable<UserSimilarity>
 
     /** 相似度值 */
     private double similarity;
-
-    public UserSimilarity()
-    {
-    }
-
-    public UserSimilarity(Long userId, double similarity)
-    {
-        this.userId = userId;
-        this.similarity = similarity;
-    }
-
-    public Long getUserId()
-    {
-        return userId;
-    }
-
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
-
-    public double getSimilarity()
-    {
-        return similarity;
-    }
-
-    public void setSimilarity(double similarity)
-    {
-        this.similarity = similarity;
-    }
 
     @Override
     public int compareTo(UserSimilarity other)

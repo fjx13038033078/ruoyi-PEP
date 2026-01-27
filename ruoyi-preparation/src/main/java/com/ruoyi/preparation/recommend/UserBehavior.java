@@ -1,10 +1,17 @@
 package com.ruoyi.preparation.recommend;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * 用户行为数据
  *
  * @author ruoyi
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserBehavior
 {
     /** 用户ID */
@@ -18,56 +25,4 @@ public class UserBehavior
 
     /** 行为次数 */
     private int count;
-
-    public UserBehavior()
-    {
-    }
-
-    public UserBehavior(Long userId, Long targetId, String behaviorType, int count)
-    {
-        this.userId = userId;
-        this.targetId = targetId;
-        this.behaviorType = behaviorType;
-        this.count = count;
-    }
-
-    public Long getUserId()
-    {
-        return userId;
-    }
-
-    public void setUserId(Long userId)
-    {
-        this.userId = userId;
-    }
-
-    public Long getTargetId()
-    {
-        return targetId;
-    }
-
-    public void setTargetId(Long targetId)
-    {
-        this.targetId = targetId;
-    }
-
-    public String getBehaviorType()
-    {
-        return behaviorType;
-    }
-
-    public void setBehaviorType(String behaviorType)
-    {
-        this.behaviorType = behaviorType;
-    }
-
-    public int getCount()
-    {
-        return count;
-    }
-
-    public void setCount(int count)
-    {
-        this.count = count;
-    }
 }
