@@ -114,4 +114,35 @@ public class KyPostController extends BaseController
     {
         return toAjax(kyPostService.deleteKyPostByIds(ids));
     }
+
+    /**
+     * 查询回收站帖子列表
+     */
+    @GetMapping("/recycle/list")
+    public TableDataInfo recycleList(KyPost kyPost)
+    {
+        startPage();
+        List<KyPost> list = kyPostService.selectDeletedPostList(kyPost);
+        return getDataTable(list);
+    }
+
+    /**
+     * 还原帖子
+     */
+    @Log(title = "帖子回收站", businessType = BusinessType.UPDATE)
+    @PutMapping("/recycle/restore/{ids}")
+    public AjaxResult restore(@PathVariable Long[] ids)
+    {
+        return toAjax(kyPostService.restoreKyPostByIds(ids));
+    }
+
+    /**
+     * 彻底删除帖子
+     */
+    @Log(title = "帖子回收站", businessType = BusinessType.DELETE)
+    @DeleteMapping("/recycle/destroy/{ids}")
+    public AjaxResult destroy(@PathVariable Long[] ids)
+    {
+        return toAjax(kyPostService.destroyKyPostByIds(ids));
+    }
 }

@@ -9,6 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="userId"       column="user_id"      />
         <result property="title"        column="title"        />
         <result property="content"      column="content"      />
+        <result property="category"     column="category"     />
         <result property="viewNum"      column="view_num"     />
         <result property="likeNum"      column="like_num"     />
         <result property="collectNum"   column="collect_num"  />
@@ -23,7 +24,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectKyPostVo">
-        select p.id, p.user_id, p.title, p.content, p.view_num, p.like_num, p.collect_num, 
+        select p.id, p.user_id, p.title, p.content, p.category, p.view_num, p.like_num, p.collect_num, 
                p.is_top, p.del_flag, p.create_by, p.create_time, p.update_by, p.update_time,
                u.nick_name as user_name, u.avatar
         from ky_post p
@@ -36,6 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             p.del_flag = '0'
             <if test="userId != null"> and p.user_id = #{userId}</if>
             <if test="title != null  and title != ''"> and p.title like concat('%', #{title}, '%')</if>
+            <if test="category != null  and category != ''"> and p.category = #{category}</if>
             <if test="isTop != null  and isTop != ''"> and p.is_top = #{isTop}</if>
             <if test="params.beginTime != null and params.beginTime != ''">
                 and date_format(p.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
@@ -58,6 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">user_id,</if>
             <if test="title != null">title,</if>
             <if test="content != null">content,</if>
+            <if test="category != null">category,</if>
             <if test="viewNum != null">view_num,</if>
             <if test="likeNum != null">like_num,</if>
             <if test="collectNum != null">collect_num,</if>
@@ -70,6 +73,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">#{userId},</if>
             <if test="title != null">#{title},</if>
             <if test="content != null">#{content},</if>
+            <if test="category != null">#{category},</if>
             <if test="viewNum != null">#{viewNum},</if>
             <if test="likeNum != null">#{likeNum},</if>
             <if test="collectNum != null">#{collectNum},</if>
@@ -86,6 +90,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">user_id = #{userId},</if>
             <if test="title != null">title = #{title},</if>
             <if test="content != null">content = #{content},</if>
+            <if test="category != null">category = #{category},</if>
             <if test="viewNum != null">view_num = #{viewNum},</if>
             <if test="likeNum != null">like_num = #{likeNum},</if>
             <if test="collectNum != null">collect_num = #{collectNum},</if>
@@ -119,4 +124,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateCollectNum" parameterType="Long">
         update ky_post set collect_num = collect_num + 1 where id = #{id}
     </update>
+
+    <!-- 回收站相关 -->
+    <select id="selectDeletedPostList" parameterType="com.ruoyi.preparation.domain.KyPost" resultMap="KyPostResult">
+        <include refid="selectKyPostVo"/>
+        <where>
+            p.del_flag = '1'
+            <if test="userId != null"> and p.user_id = #{userId}</if>
+            <if test="title != null  and title != ''"> and p.title like concat('%', #{title}, '%')</if>
+            <if test="category != null  and category != ''"> and p.category = #{category}</if>
+        </where>
+        order by p.update_time desc
+    </select>
+
+    <update id="restoreKyPostByIds" parameterType="String">
+        update ky_post set del_flag = '0', update_time = sysdate() where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="destroyKyPostByIds" parameterType="String">
+        delete from ky_post where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

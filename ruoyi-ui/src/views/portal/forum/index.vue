@@ -11,7 +11,7 @@
           <!-- 搜索和发帖 -->
           <el-card class="search-card">
             <el-row :gutter="15">
-              <el-col :span="18">
+              <el-col :span="14">
                 <el-input
                   v-model="queryParams.title"
                   placeholder="搜索帖子..."
@@ -20,12 +20,23 @@
                   @keyup.enter.native="handleQuery"
                 />
               </el-col>
-              <el-col :span="6">
-                <el-button type="primary" @click="openPostDialog" style="width: 100%;">
+              <el-col :span="10">
+                <el-button type="primary" @click="openPostDialog">
                   <i class="el-icon-edit"></i> 发布帖子
                 </el-button>
               </el-col>
             </el-row>
+            <!-- 分类筛选 -->
+            <div class="category-filter">
+              <el-radio-group v-model="queryParams.category" size="small" @change="handleQuery">
+                <el-radio-button label="">全部</el-radio-button>
+                <el-radio-button
+                  v-for="dict in categoryOptions"
+                  :key="dict.dictValue"
+                  :label="dict.dictValue"
+                >{{ dict.dictLabel }}</el-radio-button>
+              </el-radio-group>
+            </div>
           </el-card>
 
           <!-- 帖子列表 -->
@@ -46,6 +57,9 @@
                     <span class="post-time">{{ parseTime(item.createTime, '{y}-{m}-{d} {h}:{i}') }}</span>
                   </div>
                   <el-tag v-if="item.isTop === '1'" type="danger" size="mini" class="top-tag">置顶</el-tag>
+                  <el-tag v-if="item.category" :type="getCategoryTagType(item.category)" size="mini" class="category-tag">
+                    {{ getCategoryLabel(item.category) }}
+                  </el-tag>
                 </div>
                 <h3 class="post-title">{{ item.title }}</h3>
                 <div class="post-preview" v-html="getPreviewContent(item.content)"></div>
@@ -105,6 +119,16 @@
         <el-form-item label="帖子标题" prop="title">
           <el-input v-model="postForm.title" placeholder="请输入帖子标题" />
         </el-form-item>
+        <el-form-item label="帖子分类" prop="category">
+          <el-select v-model="postForm.category" placeholder="请选择分类" style="width: 100%">
+            <el-option
+              v-for="dict in categoryOptions"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="dict.dictValue"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="帖子内容" prop="content">
           <editor v-model="postForm.content" :min-height="250" />
         </el-form-item>
@@ -119,6 +143,7 @@
 
 <script>
 import { listPost, addPost } from "@/api/preparation/post";
+import { getDicts } from "@/api/system/dict/data";
 
 export default {
   name: "PortalForum",
@@ -130,27 +155,44 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        title: undefined
+        title: undefined,
+        category: ''
       },
       postDialogVisible: false,
       postForm: {
         title: '',
-        content: ''
+        content: '',
+        category: ''
       },
       postRules: {
         title: [{ required: true, message: '请输入帖子标题', trigger: 'blur' }],
+        category: [{ required: true, message: '请选择帖子分类', trigger: 'change' }],
         content: [{ required: true, message: '请输入帖子内容', trigger: 'blur' }]
-      }
+      },
+      // 分类字典
+      categoryOptions: []
     };
   },
   created() {
+    // 加载字典
+    this.getDictData();
     // 从首页搜索跳转过来
     if (this.$route.query.keyword) {
       this.queryParams.title = this.$route.query.keyword;
     }
+    // 从路由参数获取分类
+    if (this.$route.query.category) {
+      this.queryParams.category = this.$route.query.category;
+    }
     this.getList();
   },
   methods: {
+    /** 获取字典数据 */
+    getDictData() {
+      getDicts('ky_post_category').then(res => {
+        this.categoryOptions = res.data || [];
+      });
+    },
     getList() {
       this.loading = true;
       listPost(this.queryParams).then(res => {
@@ -158,6 +200,16 @@ export default {
         this.total = res.total || 0;
         this.loading = false;
       });
+    },
+    /** 获取分类标签 */
+    getCategoryLabel(value) {
+      const item = this.categoryOptions.find(d => d.dictValue === value);
+      return item ? item.dictLabel : '';
+    },
+    /** 获取分类标签类型 */
+    getCategoryTagType(value) {
+      const typeMap = { '1': 'primary', '2': 'info', '3': 'warning' };
+      return typeMap[value] || '';
     },
     getPreviewContent(content) {
       if (!content) return '';
@@ -177,7 +229,7 @@ export default {
       this.$router.push('/portal/post/' + id);
     },
     openPostDialog() {
-      this.postForm = { title: '', content: '' };
+      this.postForm = { title: '', content: '', category: '' };
       this.postDialogVisible = true;
     },
     submitPost() {
@@ -222,6 +274,12 @@ export default {
 
   .search-card {
     margin-bottom: 20px;
+
+    .category-filter {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
   }
 
   .post-list {
@@ -260,6 +318,11 @@ export default {
 
         .top-tag {
           flex-shrink: 0;
+        }
+
+        .category-tag {
+          flex-shrink: 0;
+          margin-left: 8px;
         }
       }
 

@@ -31,6 +31,10 @@ public class KyPost extends BaseEntity
     @Excel(name = "帖子内容")
     private String content;
 
+    /** 帖子分类（字典：ky_post_category） */
+    @Excel(name = "帖子分类", dictType = "ky_post_category")
+    private String category;
+
     /** 浏览量 */
     @Excel(name = "浏览量")
     private Integer viewNum;

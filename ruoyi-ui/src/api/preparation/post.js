@@ -42,3 +42,28 @@ export function delPost(id) {
     method: 'delete'
   })
 }
+
+// 查询回收站帖子列表
+export function listRecyclePost(query) {
+  return request({
+    url: '/preparation/post/recycle/list',
+    method: 'get',
+    params: query
+  })
+}
+
+// 还原帖子
+export function restorePost(ids) {
+  return request({
+    url: '/preparation/post/recycle/restore/' + ids,
+    method: 'put'
+  })
+}
+
+// 彻底删除帖子
+export function destroyPost(ids) {
+  return request({
+    url: '/preparation/post/recycle/destroy/' + ids,
+    method: 'delete'
+  })
+}

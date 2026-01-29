@@ -81,4 +81,28 @@ public interface KyPostMapper
      * @return 结果
      */
     public int updateCollectNum(Long id);
+
+    /**
+     * 查询回收站帖子列表
+     * 
+     * @param kyPost 论坛帖子
+     * @return 论坛帖子集合
+     */
+    public List<KyPost> selectDeletedPostList(KyPost kyPost);
+
+    /**
+     * 还原帖子
+     * 
+     * @param ids 需要还原的数据主键集合
+     * @return 结果
+     */
+    public int restoreKyPostByIds(Long[] ids);
+
+    /**
+     * 彻底删除帖子
+     * 
+     * @param ids 需要删除的数据主键集合
+     * @return 结果
+     */
+    public int destroyKyPostByIds(Long[] ids);
 }

@@ -10,6 +10,16 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="帖子分类" prop="category">
+        <el-select v-model="queryParams.category" placeholder="请选择分类" clearable style="width: 200px">
+          <el-option
+            v-for="dict in dict.type.ky_post_category"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="是否置顶" prop="isTop">
         <el-select v-model="queryParams.isTop" placeholder="请选择" clearable style="width: 200px">
           <el-option label="是" value="1" />
@@ -53,6 +63,11 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="帖子ID" align="center" prop="id" width="80" />
       <el-table-column label="帖子标题" align="center" prop="title" :show-overflow-tooltip="true" min-width="200" />
+      <el-table-column label="帖子分类" align="center" prop="category" width="100">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.ky_post_category" :value="scope.row.category"/>
+        </template>
+      </el-table-column>
       <el-table-column label="发帖人" align="center" prop="userName" width="100" />
       <el-table-column label="浏览量" align="center" prop="viewNum" width="80">
         <template slot-scope="scope">
@@ -107,6 +122,16 @@
         <el-form-item label="帖子标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入帖子标题" />
         </el-form-item>
+        <el-form-item label="帖子分类" prop="category">
+          <el-select v-model="form.category" placeholder="请选择分类" style="width: 100%">
+            <el-option
+              v-for="dict in dict.type.ky_post_category"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="是否置顶" prop="isTop">
           <el-radio-group v-model="form.isTop">
             <el-radio label="1">是</el-radio>
@@ -128,6 +153,9 @@
       <el-descriptions :column="2" border>
         <el-descriptions-item label="帖子标题" :span="2">{{ viewForm.title }}</el-descriptions-item>
         <el-descriptions-item label="发帖人">{{ viewForm.userName }}</el-descriptions-item>
+        <el-descriptions-item label="帖子分类">
+          <dict-tag :options="dict.type.ky_post_category" :value="viewForm.category"/>
+        </el-descriptions-item>
         <el-descriptions-item label="是否置顶">
           <el-tag :type="viewForm.isTop === '1' ? 'success' : 'info'">{{ viewForm.isTop === '1' ? '是' : '否' }}</el-tag>
         </el-descriptions-item>
@@ -151,6 +179,7 @@ import { listPost, getPost, delPost, addPost, updatePost } from "@/api/preparati
 
 export default {
   name: "Post",
+  dicts: ['ky_post_category'],
   data() {
     return {
       // 遮罩层
@@ -182,6 +211,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         title: undefined,
+        category: undefined,
         isTop: undefined
       },
       // 表单参数
@@ -190,6 +220,9 @@ export default {
       rules: {
         title: [
           { required: true, message: "帖子标题不能为空", trigger: "blur" }
+        ],
+        category: [
+          { required: true, message: "请选择帖子分类", trigger: "change" }
         ],
         content: [
           { required: true, message: "帖子内容不能为空", trigger: "blur" }
@@ -221,6 +254,7 @@ export default {
         id: undefined,
         title: undefined,
         content: undefined,
+        category: undefined,
         isTop: "0"
       };
       this.resetForm("form");

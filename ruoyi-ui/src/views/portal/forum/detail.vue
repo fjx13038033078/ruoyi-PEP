@@ -16,6 +16,9 @@
                 </div>
               </div>
               <el-tag v-if="post.isTop === '1'" type="danger">置顶</el-tag>
+              <el-tag v-if="post.category" :type="getCategoryTagType(post.category)" style="margin-left: 8px;">
+                {{ getCategoryLabel(post.category) }}
+              </el-tag>
             </div>
 
             <h1 class="post-title">{{ post.title }}</h1>
@@ -112,6 +115,12 @@
             <div slot="header">
               <i class="el-icon-data-analysis"></i> 帖子信息
             </div>
+            <div class="info-item" v-if="post.category">
+              <span class="label">帖子分类</span>
+              <el-tag :type="getCategoryTagType(post.category)" size="small">
+                {{ getCategoryLabel(post.category) }}
+              </el-tag>
+            </div>
             <div class="info-item">
               <span class="label">浏览量</span>
               <span class="value">{{ post.viewNum || 0 }}</span>
@@ -141,6 +150,7 @@
 <script>
 import { getPost, delPost } from "@/api/preparation/post";
 import { getCommentTree, addComment, delComment } from "@/api/preparation/comment";
+import { getDicts } from "@/api/system/dict/data";
 import request from '@/utils/request'
 
 export default {
@@ -153,11 +163,14 @@ export default {
       commentContent: "",
       isLiked: false,
       isCollected: false,
-      userId: null
+      userId: null,
+      // 分类字典
+      categoryOptions: []
     };
   },
   created() {
     this.userId = this.$store.getters.userId;
+    this.getDictData();
     const id = this.$route.params.id;
     if (id) {
       this.getDetail(id);
@@ -166,6 +179,22 @@ export default {
     }
   },
   methods: {
+    /** 获取字典数据 */
+    getDictData() {
+      getDicts('ky_post_category').then(res => {
+        this.categoryOptions = res.data || [];
+      });
+    },
+    /** 获取分类标签 */
+    getCategoryLabel(value) {
+      const item = this.categoryOptions.find(d => d.dictValue === value);
+      return item ? item.dictLabel : '';
+    },
+    /** 获取分类标签类型 */
+    getCategoryTagType(value) {
+      const typeMap = { '1': 'primary', '2': 'info', '3': 'warning' };
+      return typeMap[value] || '';
+    },
     getDetail(id) {
       this.loading = true;
       getPost(id).then(res => {
