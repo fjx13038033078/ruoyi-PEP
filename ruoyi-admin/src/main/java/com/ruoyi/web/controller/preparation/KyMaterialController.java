@@ -77,7 +77,8 @@ public class KyMaterialController extends BaseController
         }
         catch (Exception e)
         {
-            // 浏览记录失败不影响主流程
+            // 浏览记录失败不影响主流程，但打印日志便于排查
+            logger.warn("记录资料浏览日志失败: materialId={}, error={}", id, e.getMessage());
         }
         return success(kyMaterialService.selectKyMaterialById(id));
     }

@@ -68,7 +68,7 @@ public interface KyBrowseLogMapper
      * @param targetType 目标类型
      * @return 浏览记录
      */
-    public KyBrowseLog selectByUserAndTarget(Long userId, Long targetId, String targetType);
+    public KyBrowseLog selectByUserAndTarget(@Param("userId") Long userId, @Param("targetId") Long targetId, @Param("targetType") String targetType);
 
     /**
      * 查询用户某类型的浏览记录（用于推荐）
