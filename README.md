@@ -1,5 +1,6 @@
 
 # PEP（preparation and exchange platform）
+考研互助交流平台
 
 ## 说明
 
